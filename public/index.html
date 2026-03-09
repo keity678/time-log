@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Time Log — クライアント別タイムログ</title>
+  <meta name="description" content="クライアント別の稼働時間を記録・管理するタイムログアプリ" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+      <h1>Time Log</h1>
+      <p class="subtitle">クライアント別の打刻履歴を残す（編集可）</p>
+    </header>
+
+    <!-- ===== 打刻カード ===== -->
+    <section class="card" id="inputCard">
+      <h2 class="card-title">打刻</h2>
+
+      <!-- 議事録ファイル添付 -->
+      <div class="form-group">
+        <label class="form-label">議事録ファイル添付</label>
+        <div class="file-upload-area" id="fileDropArea">
+          <input type="file" id="fileInput" accept=".txt,.md,.text,.markdown" />
+          <div class="file-upload-label">
+            <span class="file-upload-icon">📎</span>
+            <span id="fileName">ファイルを選択（.txt / .md）</span>
+          </div>
+        </div>
+        <button id="summarizeBtn" class="btn-accent btn-block" disabled>
+          <span id="summarizeBtnText">AI で稼働内容を要約</span>
+        </button>
+      </div>
+
+      <!-- クライアント選択 -->
+      <div class="form-group">
+        <label class="form-label" for="clientSelect">クライアント</label>
+        <div class="row">
+          <select id="clientSelect" style="flex:1">
+            <option value="">— 選択 —</option>
+          </select>
+          <button id="delClientBtn" class="btn-muted" title="選択中のクライアントを削除">×</button>
+        </div>
+      </div>
+
+      <!-- 新規クライアント追加 -->
+      <div class="form-group">
+        <label class="form-label" for="clientNew">新規クライアント追加</label>
+        <div class="row">
+          <input id="clientNew" placeholder="新しいクライアント名" />
+          <button id="addClientBtn" class="btn-secondary">＋ 追加</button>
+        </div>
+      </div>
+
+      <!-- 日付 -->
+      <div class="form-group">
+        <label class="form-label" for="workDate">日付</label>
+        <input id="workDate" type="date" />
+      </div>
+
+      <!-- 開始〜終了時刻 -->
+      <div class="form-group">
+        <label class="form-label">稼働時間</label>
+        <div class="time-range-row">
+          <div class="time-input-wrap">
+            <span class="time-label">開始</span>
+            <input id="startTime" type="time" value="09:00" />
+          </div>
+          <span class="time-separator">〜</span>
+          <div class="time-input-wrap">
+            <span class="time-label">終了</span>
+            <input id="endTime" type="time" value="18:00" />
+          </div>
+        </div>
+        <div class="calc-result" id="calcResult">
+          <span class="calc-label">算出:</span>
+          <span class="calc-value" id="calcValue">9.0h（540分）</span>
+        </div>
+      </div>
+
+      <!-- タイマー -->
+      <div class="form-group">
+        <label class="form-label">タイマー（補助）</label>
+        <div class="timer-row">
+          <span class="timer-display" id="timer">00:00:00</span>
+          <button id="startBtn" class="btn-primary">▶ 開始</button>
+          <button id="stopSaveBtn" class="btn-success" disabled>⏹ 停止 → 保存</button>
+        </div>
+      </div>
+
+      <!-- 稼働内容 -->
+      <div class="form-group">
+        <label class="form-label" for="memo">稼働内容</label>
+        <textarea id="memo" rows="4" placeholder="作業内容（議事録を添付するとAIで自動入力されます）"></textarea>
+      </div>
+
+      <!-- 保存 / リセット -->
+      <div class="btn-group">
+        <button id="saveBtn" class="btn-primary">保存</button>
+        <button id="resetBtn" class="btn-secondary" type="button">リセット</button>
+      </div>
+
+      <!-- ステータス -->
+      <div id="status" class="status-bar"></div>
+    </section>
+
+    <!-- ===== 履歴カード ===== -->
+    <section class="card" id="historyCard">
+      <div class="history-header">
+        <h2 class="card-title">履歴</h2>
+        <button id="reloadBtn" class="btn-secondary">再読み込み</button>
+      </div>
+
+      <!-- PC: テーブル表示 -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日時</th>
+              <th>クライアント</th>
+              <th>時間</th>
+              <th>稼働内容</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="logsTbody"></tbody>
+        </table>
+      </div>
+
+      <!-- モバイル: カード表示 -->
+      <div class="log-cards" id="logCards"></div>
+    </section>
+
+  </div>
+
+  <script src="./script.js" defer></script>
+</body>
+
+</html>
