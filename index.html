@@ -2,30 +2,57 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Time Log | SHA Inc.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Log</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-50 p-8 text-slate-900">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-        <h1 class="text-2xl font-bold mb-6">議事録解析ツール</h1>
+<body class="bg-slate-50 p-4 md:p-8">
+    <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h1 class="text-2xl font-bold mb-6 text-slate-800">Time Log</h1>
         
-        <div class="space-y-4">
-            <textarea id="textInput" rows="10" class="w-full p-4 border rounded-xl outline-none focus:ring-2 focus:ring-slate-900" placeholder="ここに議事録を直接貼り付けてください..."></textarea>
-            
-            <div class="flex items-center space-x-4">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="text-xs font-bold text-slate-400 uppercase">OR</span>
-                <div class="flex-grow border-t border-slate-200"></div>
+        <div class="space-y-6">
+            <!-- 1. 議事録入力エリア -->
+            <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+                <label class="block text-sm font-bold text-blue-800 mb-2">議事録（貼り付け or ファイル）</label>
+                <textarea id="textInput" rows="5" class="w-full p-3 border border-blue-200 rounded-lg text-sm mb-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="ここに会議のログを直接貼り付けるか..."></textarea>
+                <input type="file" id="fileInput" class="block w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                <button onclick="processMinutes()" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">AI で稼働内容を要約</button>
             </div>
 
-            <input type="file" id="fileInput" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200">
-            
-            <button onclick="processMinutes()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition">解析実行</button>
-        </div>
+            <!-- 2. 解析結果表示 -->
+            <div id="result" class="hidden">
+                <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest">AI Analysis Result</label>
+                <pre id="output" class="bg-slate-900 text-slate-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed"></pre>
+            </div>
 
-        <div id="result" class="mt-8 hidden border-t pt-6">
-            <h2 class="text-sm font-bold text-slate-500 mb-2 tracking-widest uppercase">Analysis Result</h2>
-            <pre id="output" class="bg-slate-900 text-slate-300 p-6 rounded-xl overflow-x-auto text-sm leading-relaxed whitespace-pre-wrap font-mono"></pre>
+            <hr class="border-slate-100">
+
+            <!-- 3. 打刻フォーム（元のUI） -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">クライアント</label>
+                    <select id="clientSelect" class="w-full p-2 border rounded-lg text-sm">
+                        <option>--- 選択 ---</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">日付</label>
+                    <input type="date" id="dateInput" class="w-full p-2 border rounded-lg text-sm">
+                </div>
+                <div class="flex space-x-2">
+                    <div class="flex-1">
+                        <label class="block text-xs text-slate-500">開始</label>
+                        <input type="time" id="startTime" class="w-full p-2 border rounded-lg text-sm" value="09:00">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs text-slate-500">終了</label>
+                        <input type="time" id="endTime" class="w-full p-2 border rounded-lg text-sm" value="18:00">
+                    </div>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg text-sm text-slate-600 font-bold">
+                    算出: <span id="totalHours" class="text-blue-600">9.0h (540分)</span>
+                </div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
