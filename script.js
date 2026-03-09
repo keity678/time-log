@@ -25,20 +25,16 @@ const addClient = () => {
     updateClientSelect();
     document.getElementById('clientSelect').value = name;
     input.value = '';
-  } else {
-    alert("既に登録済みです。");
   }
 };
 
 const removeClient = () => {
   const select = document.getElementById('clientSelect');
   const target = select.value;
-  if (!target) return alert("削除する対象を選択してください。");
-  if (confirm(`「${target}」を削除しますか？`)) {
-    clients = clients.filter(c => c !== target);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
-    updateClientSelect();
-  }
+  if (!target) return;
+  clients = clients.filter(c => c !== target);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+  updateClientSelect();
 };
 
 const calculateHours = () => {
@@ -52,29 +48,64 @@ const calculateHours = () => {
   document.getElementById('totalHoursDisplay').textContent = `${(diff / 60).toFixed(1)}h (${diff}分)`;
 };
 
+// 指数的バックオフを伴うGemini API呼び出し
+const callGemini = async (content) => {
+  const apiKey = "";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+  const payload = {
+    contents: [{ parts: [{ text: content }] }],
+    systemInstruction: { parts: [{ text: "議事録から【日程】【参加者】【決定事項】【タスク】をMarkdown形式で抽出してください。" }] }
+  };
+
+  let delay = 1000;
+  for (let i = 0; i < 5; i++) {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "解析結果が空でした。";
+      }
+    } catch (e) {
+      // リトライのためにエラーを握りつぶす（指示通り）
+    }
+    await new Promise(resolve => setTimeout(resolve, delay));
+    delay *= 2;
+  }
+  throw new Error("通信エラーまたは制限により解析に失敗しました。時間をおいて再度お試しください。");
+};
+
 const processMinutes = async () => {
   const fileInput = document.getElementById('fileInput');
   const textInput = document.getElementById('textInput');
   const output = document.getElementById('output');
   const resultDiv = document.getElementById('result');
-  const apiKey = ""; 
-  let content = (fileInput.files.length > 0) ? await fileInput.files[0].text() : textInput.value.trim();
-  if (!content) return alert("内容を入力してください");
+  const btn = document.getElementById('processBtn');
+
+  let content = "";
+  if (fileInput.files.length > 0) {
+    content = await fileInput.files[0].text();
+  } else {
+    content = textInput.value.trim();
+  }
+
+  if (!content) return;
+
+  btn.disabled = true;
   resultDiv.classList.remove('hidden');
-  output.textContent = "解析中...";
+  output.textContent = "AIが解析中... (最大30秒ほどかかる場合があります)";
+
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: content }] }],
-        systemInstruction: { parts: [{ text: "議事録から【日程】【参加者】【決定事項】【タスク】をMarkdown形式で抽出してください。" }] }
-      })
-    });
-    const data = await response.json();
-    output.textContent = data.candidates[0].content.parts[0].text;
+    const resultText = await callGemini(content);
+    output.textContent = resultText;
   } catch (e) {
-    output.textContent = "Error: " + e.message;
+    output.textContent = "エラー: " + e.message;
+  } finally {
+    btn.disabled = false;
   }
 };
 
