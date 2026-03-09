@@ -9,19 +9,17 @@
 <body class="bg-slate-50 p-4 md:p-8">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
         <h1 class="text-2xl font-bold mb-2 text-slate-800 flex justify-between">
-            Time Log <span class="text-[10px] text-blue-600 font-mono">v2.9 (22:23:27)</span>
+            Time Log <span class="text-[10px] text-blue-600 font-mono">v3.0 (22:24:06)</span>
         </h1>
-        <p class="text-slate-500 text-xs mb-6 font-medium border-b pb-2">SHA株式会社 構造化解析パートナー</p>
+        <p class="text-slate-500 text-xs mb-6 font-medium border-b pb-2">SHA株式会社 構造化解析システム</p>
         
         <div class="space-y-6">
-            <!-- AI解析セクション -->
+            <!-- AI解析 -->
             <div class="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
                 <label class="block text-sm font-bold text-indigo-900 mb-3 underline decoration-indigo-200">AI 議事録解析</label>
-                <textarea id="textInput" rows="5" class="w-full p-4 border border-indigo-200 rounded-lg text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner" placeholder="ここに会議ログをペーストしてください..."></textarea>
-                <div class="flex items-center space-x-3 mb-4">
-                    <input type="file" id="fileInput" class="block flex-grow text-xs text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-indigo-600 file:text-white cursor-pointer">
-                </div>
-                <button onclick="processMinutes()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm shadow-md hover:bg-indigo-700 transition active:scale-95">解析を実行</button>
+                <textarea id="textInput" rows="5" class="w-full p-4 border border-indigo-200 rounded-lg text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner" placeholder="ここに会議ログをペースト..."></textarea>
+                <input type="file" id="fileInput" class="block w-full text-xs text-slate-500 mb-4">
+                <button onclick="processMinutes()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm shadow-md hover:bg-indigo-700 transition active:scale-95">解析実行</button>
             </div>
 
             <div id="result" class="hidden">
@@ -30,54 +28,54 @@
 
             <hr class="border-slate-100">
 
-            <!-- 打刻フォーム -->
+            <!-- 手動打刻入力 -->
             <div class="space-y-5">
                 <h2 class="text-sm font-bold text-slate-700 flex items-center">
-                    <span class="w-1.5 h-4 bg-slate-800 mr-2 rounded-full"></span>手動打刻入力
+                    <span class="w-1.5 h-4 bg-slate-800 mr-2 rounded-full"></span>打刻入力
                 </h2>
                 
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-500">クライアント選択</label>
                     <div class="flex space-x-2">
-                        <select id="clientSelect" class="flex-grow p-3 border rounded-xl text-sm bg-white border-slate-200 shadow-sm focus:ring-2 focus:ring-slate-200 outline-none">
+                        <select id="clientSelect" class="flex-grow p-3 border rounded-xl text-sm bg-white border-slate-200 shadow-sm outline-none focus:ring-2 focus:ring-slate-200">
                             <option value="">--- 選択 ---</option>
                         </select>
-                        <button onclick="removeClient()" class="px-4 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-bold hover:bg-red-100 transition" title="選択中のクライアントを削除">削除</button>
+                        <button onclick="removeClient()" class="px-4 bg-red-50 text-red-600 border border-red-100 rounded-xl text-xs font-bold hover:bg-red-100 transition">削除</button>
                     </div>
                 </div>
 
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
-                    <label class="block text-xs font-bold text-slate-500">新規クライアント追加</label>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3 shadow-inner">
+                    <label class="block text-xs font-bold text-slate-500">新規クライアント登録</label>
                     <div class="flex space-x-2">
-                        <input type="text" id="newClientName" class="flex-grow p-2.5 border rounded-lg text-sm outline-none focus:border-slate-400" placeholder="新しい取引先名を入力">
-                        <button onclick="addClient()" class="bg-white border border-slate-200 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-100 shadow-sm">+ 追加・保存</button>
+                        <input type="text" id="newClientName" class="flex-grow p-2.5 border border-slate-200 rounded-lg text-sm outline-none focus:border-indigo-400" placeholder="新しい取引先名">
+                        <button onclick="addClient()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-700 shadow-sm">+ 追加</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 mb-1">日付</label>
-                        <input type="date" id="dateInput" class="w-full p-3 border rounded-xl text-sm border-slate-200 shadow-sm">
+                        <input type="date" id="dateInput" class="w-full p-3 border rounded-xl text-sm border-slate-200">
                     </div>
                     <div class="flex space-x-2">
                         <div class="flex-1">
                             <label class="block text-xs font-bold text-slate-500 mb-1">開始</label>
-                            <input type="time" id="startTime" class="w-full p-3 border rounded-xl text-sm border-slate-200 shadow-sm" value="09:00" onchange="calculateHours()">
+                            <input type="time" id="startTime" class="w-full p-3 border rounded-xl text-sm border-slate-200" value="09:00" onchange="calculateHours()">
                         </div>
                         <div class="flex-1">
                             <label class="block text-xs font-bold text-slate-500 mb-1">終了</label>
-                            <input type="time" id="endTime" class="w-full p-3 border rounded-xl text-sm border-slate-200 shadow-sm" value="18:00" onchange="calculateHours()">
+                            <input type="time" id="endTime" class="w-full p-3 border rounded-xl text-sm border-slate-200" value="18:00" onchange="calculateHours()">
                         </div>
                     </div>
                 </div>
 
-                <div class="p-4 bg-blue-50 rounded-xl text-sm text-blue-800 font-bold border border-blue-100 flex justify-between items-center shadow-inner">
-                    <span>自動算出時間:</span>
+                <div class="p-4 bg-indigo-50 rounded-xl text-sm text-indigo-900 font-bold border border-indigo-100 flex justify-between items-center">
+                    <span>算出時間:</span>
                     <span id="totalHoursDisplay" class="text-lg">9.0h (540分)</span>
                 </div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=1773062607"></script>
+    <script src="script.js?v=1773062646"></script>
 </body>
 </html>
