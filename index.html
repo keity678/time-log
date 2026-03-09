@@ -1,1 +1,23 @@
-
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Log</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 p-8">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
+        <h1 class="text-2xl font-bold mb-4 text-slate-800">議事録解析</h1>
+        <textarea id="textInput" rows="10" class="w-full p-4 border rounded-xl mb-4 outline-none focus:ring-2 focus:ring-slate-900" placeholder="ここに議事録を直接貼り付けてください..."></textarea>
+        <div class="mb-6">
+            <label class="block text-sm font-bold mb-2">またはファイルを選択</label>
+            <input type="file" id="fileInput" class="block w-full text-sm text-slate-500">
+        </div>
+        <button onclick="processMinutes()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition">解析実行</button>
+        <div id="result" class="mt-8 hidden border-t pt-6">
+            <pre id="output" class="bg-slate-900 text-slate-300 p-6 rounded-xl overflow-x-auto text-sm leading-relaxed whitespace-pre-wrap"></pre>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
