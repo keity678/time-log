@@ -1,3 +1,6 @@
+// APIキーは環境によって自動注入されるため空文字で定義
+const apiKey = ""; 
+
 const STORAGE_KEY = 'time_log_clients_v1';
 let clients = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
@@ -48,13 +51,11 @@ const calculateHours = () => {
   document.getElementById('totalHoursDisplay').textContent = `${(diff / 60).toFixed(1)}h (${diff}分)`;
 };
 
-// 指数的バックオフを伴うGemini API呼び出し
 const callGemini = async (content) => {
-  const apiKey = "";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
   const payload = {
     contents: [{ parts: [{ text: content }] }],
-    systemInstruction: { parts: [{ text: "議事録から【日程】【参加者】【決定事項】【タスク】をMarkdown形式で抽出してください。" }] }
+    systemInstruction: { parts: [{ text: "議事録から【日程】【参加者】【決定事項】【タスク】を抽出し、Markdown形式で構造化してください。" }] }
   };
 
   let delay = 1000;
@@ -68,15 +69,18 @@ const callGemini = async (content) => {
       
       if (response.ok) {
         const data = await response.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "解析結果が空でした。";
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
       }
     } catch (e) {
-      // リトライのためにエラーを握りつぶす（指示通り）
+      // 指数的バックオフによるリトライ
     }
-    await new Promise(resolve => setTimeout(resolve, delay));
-    delay *= 2;
+    if (i < 4) {
+      await new Promise(r => setTimeout(r, delay));
+      delay *= 2;
+    }
   }
-  throw new Error("通信エラーまたは制限により解析に失敗しました。時間をおいて再度お試しください。");
+  throw new Error("API通信が連続して失敗しました。ネットワーク制限または環境の問題です。");
 };
 
 const processMinutes = async () => {
@@ -97,7 +101,7 @@ const processMinutes = async () => {
 
   btn.disabled = true;
   resultDiv.classList.remove('hidden');
-  output.textContent = "AIが解析中... (最大30秒ほどかかる場合があります)";
+  output.textContent = "AI解析中...";
 
   try {
     const resultText = await callGemini(content);
