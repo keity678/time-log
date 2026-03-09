@@ -3,37 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Log v2.0</title>
+    <title>Time Log | SHA Inc.</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 p-4 md:p-8">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h1 class="text-2xl font-bold mb-6 text-slate-800">Time Log <span class="text-sm font-normal text-blue-500">v2.0</span></h1>
+        <h1 class="text-2xl font-bold mb-2 text-slate-800 flex justify-between">
+            Time Log <span class="text-[10px] text-slate-400">Build: $(date +'%H%M%S')</span>
+        </h1>
+        <p class="text-slate-500 text-xs mb-6">クライアント別の打刻履歴を残す（構造化解析対応）</p>
         
         <div class="space-y-6">
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <label class="block text-sm font-bold text-blue-800 mb-2">議事録解析（ここに貼り付け）</label>
-                <textarea id="textInput" rows="5" class="w-full p-3 border border-blue-200 rounded-lg text-sm mb-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="会議ログをここにペースト..."></textarea>
-                <div class="text-center text-[10px] text-slate-400 mb-3 font-bold uppercase tracking-widest">OR</div>
-                <input type="file" id="fileInput" class="block w-full text-xs text-slate-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-blue-600 file:text-white cursor-pointer">
-                <button onclick="processMinutes()" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold text-sm shadow-md hover:bg-blue-700 transition">AI 解析実行</button>
+            <!-- 1. 議事録入力（貼り付け & ファイル） -->
+            <div class="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                <label class="block text-sm font-bold text-indigo-900 mb-3">議事録解析</label>
+                <textarea id="textInput" rows="6" class="w-full p-4 border border-indigo-200 rounded-lg text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="テキストをここに貼り付けてください..."></textarea>
+                
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="flex-grow border-t border-indigo-100"></div>
+                    <span class="text-[10px] font-black text-indigo-300 uppercase">OR</span>
+                    <div class="flex-grow border-t border-indigo-100"></div>
+                </div>
+
+                <input type="file" id="fileInput" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer mb-4">
+                
+                <button onclick="processMinutes()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold text-sm shadow-md hover:bg-indigo-700 transition active:scale-95">AI で稼働内容を要約</button>
             </div>
 
-            <div id="result" class="hidden">
-                <pre id="output" class="bg-slate-900 text-slate-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed font-mono"></pre>
+            <!-- 2. 解析結果 -->
+            <div id="result" class="hidden animate-in fade-in">
+                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Analysis Result</label>
+                <pre id="output" class="bg-slate-900 text-slate-300 p-5 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap leading-relaxed font-mono"></pre>
             </div>
 
             <hr class="border-slate-100">
 
-            <div class="space-y-4 opacity-50">
-                <h2 class="text-sm font-bold text-slate-700">打刻記録（手動入力）</h2>
+            <!-- 3. 既存の打刻フォーム -->
+            <div class="space-y-4">
+                <h2 class="text-sm font-bold text-slate-700 flex items-center">
+                    <span class="w-1 h-4 bg-slate-800 mr-2"></span>打刻記録
+                </h2>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 mb-1">クライアント</label>
-                    <select id="clientSelect" class="w-full p-2 border rounded-lg text-sm bg-white"><option>--- 選択 ---</option></select>
+                    <select id="clientSelect" class="w-full p-3 border rounded-xl text-sm bg-white border-slate-200">
+                        <option>--- 選択 ---</option>
+                    </select>
+                </div>
+                <div class="flex space-x-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">開始</label>
+                        <input type="time" id="startTime" class="w-full p-3 border rounded-xl text-sm border-slate-200" value="09:00">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">終了</label>
+                        <input type="time" id="endTime" class="w-full p-3 border rounded-xl text-sm border-slate-200" value="18:00">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js?v=$(date +%s)"></script>
 </body>
 </html>
