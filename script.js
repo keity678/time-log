@@ -5,18 +5,9 @@ const processMinutes = async () => {
   const resultDiv = document.getElementById('result');
   
   const apiKey = ""; 
-  let content = "";
+  let content = (fileInput.files.length > 0) ? await fileInput.files[0].text() : textInput.value.trim();
 
-  if (fileInput.files.length > 0) {
-    content = await fileInput.files[0].text();
-  } else {
-    content = textInput.value.trim();
-  }
-
-  if (!content) {
-    alert("テキストを入力するか、ファイルを選択してください。");
-    return;
-  }
+  if (!content) return alert("内容を入力してください");
 
   resultDiv.classList.remove('hidden');
   output.textContent = "解析中...";
@@ -27,16 +18,11 @@ const processMinutes = async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: content }] }],
-        systemInstruction: { parts: [{ text: "あなたはSHA株式会社の構造思考パートナーです。議事録から【日程】【参加者】【構造化決定事項】【タスク/シフト】を抽出してください。実務に直結しない表現は排除してください。" }] }
+        systemInstruction: { parts: [{ text: "議事録から【日程】【参加者】【決定事項】【タスク】を抽出せよ。" }] }
       })
     });
-
     const data = await response.json();
-    if (data.candidates && data.candidates[0]) {
-      output.textContent = data.candidates[0].content.parts[0].text;
-    } else {
-      throw new Error("APIからの応答が空です。");
-    }
+    output.textContent = data.candidates[0].content.parts[0].text;
   } catch (e) {
     output.textContent = "Error: " + e.message;
   }
