@@ -3,42 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Log 構造化解析システム</title>
+    <title>Time Log | SHA Inc.</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 p-4 md:p-8">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
         <h1 class="text-2xl font-bold mb-2 text-slate-800 flex justify-between">
-            Time Log <span class="text-[10px] text-blue-600 font-mono">v2.6 (Update: 22:15:03)</span>
+            Time Log <span class="text-[10px] text-blue-600 font-mono">v2.7 (Update: 22:18:29)</span>
         </h1>
         <p class="text-slate-500 text-xs mb-6">SHA株式会社 構造化解析パートナー</p>
         
         <div class="space-y-6">
-            <!-- 議事録入力セクション -->
-            <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
-                <label class="block text-sm font-bold text-blue-900 mb-3">議事録解析（貼り付け・ファイル選択）</label>
-                <textarea id="textInput" rows="8" class="w-full p-4 border border-blue-200 rounded-lg text-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500" placeholder="ここに会議ログをペースト、または下のボタンからファイルをアップロードしてください..."></textarea>
+            <!-- 1. 議事録解析セクション -->
+            <div class="bg-indigo-50/50 p-5 rounded-xl border border-indigo-100">
+                <label class="block text-sm font-bold text-indigo-900 mb-3 underline decoration-indigo-200">AI 議事録解析</label>
+                <textarea id="textInput" rows="5" class="w-full p-4 border border-indigo-200 rounded-lg text-sm mb-4 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="テキストをペースト..."></textarea>
                 <input type="file" id="fileInput" class="block w-full text-xs text-slate-500 mb-4">
-                <button onclick="processMinutes()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-sm shadow-md hover:bg-blue-700 transition active:scale-95">AI 要約・構造化を実行</button>
+                <button onclick="processMinutes()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm shadow-md hover:bg-indigo-700 transition active:scale-95">解析を実行</button>
             </div>
 
-            <!-- 解析結果表示エリア -->
             <div id="result" class="hidden">
-                <label class="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">Analysis Result</label>
-                <pre id="output" class="bg-slate-900 text-slate-300 p-5 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed border border-slate-800"></pre>
+                <pre id="output" class="bg-slate-900 text-slate-300 p-5 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed"></pre>
             </div>
 
             <hr class="border-slate-100">
 
-            <!-- 既存の打刻フォーム（UI維持） -->
-            <div class="opacity-40">
-                <h2 class="text-sm font-bold text-slate-700 mb-4">手動打刻フォーム</h2>
-                <div class="space-y-4">
-                    <select class="w-full p-3 border rounded-xl text-sm bg-white border-slate-200"><option>--- クライアント選択 ---</option></select>
+            <!-- 2. 打刻フォーム（全機能復元） -->
+            <div class="space-y-5">
+                <h2 class="text-sm font-bold text-slate-700 flex items-center">
+                    <span class="w-1 h-4 bg-slate-800 mr-2"></span>打刻入力
+                </h2>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">クライアント</label>
+                    <div class="flex space-x-2">
+                        <select id="clientSelect" class="flex-grow p-2.5 border rounded-xl text-sm bg-white border-slate-200 shadow-sm">
+                            <option value="">--- 選択 ---</option>
+                        </select>
+                        <button onclick="removeClient()" class="p-2.5 text-slate-400 hover:text-red-500 transition">✕</button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+                    <label class="block text-xs font-bold text-slate-500">新規クライアント追加</label>
+                    <div class="flex space-x-2">
+                        <input type="text" id="newClientName" class="flex-grow p-2 border rounded-lg text-sm outline-none focus:border-slate-400" placeholder="クライアント名">
+                        <button onclick="addClient()" class="bg-white border border-slate-200 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50">+ 追加</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1">日付</label>
+                    <input type="date" id="dateInput" class="w-full p-2.5 border rounded-xl text-sm border-slate-200">
+                </div>
+
+                <div class="flex space-x-3">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">開始</label>
+                        <input type="time" id="startTime" class="w-full p-2.5 border rounded-xl text-sm border-slate-200" value="09:00" onchange="calculateHours()">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-slate-500 mb-1">終了</label>
+                        <input type="time" id="endTime" class="w-full p-2.5 border rounded-xl text-sm border-slate-200" value="18:00" onchange="calculateHours()">
+                    </div>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-xl text-sm text-blue-800 font-bold border border-blue-100 flex justify-between items-center">
+                    <span>算出時間:</span>
+                    <span id="totalHoursDisplay">9.0h (540分)</span>
                 </div>
             </div>
         </div>
     </div>
-    <script src="script.js?v=1773062103"></script>
+    <script src="script.js?v=1773062309"></script>
 </body>
 </html>
